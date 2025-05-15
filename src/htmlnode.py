@@ -1,9 +1,9 @@
 class HTMLNode():
-    def __init__(self, tag=None, value=None, props=None, children=None):
+    def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag
         self.value = value
-        self.props = props
         self.children = children
+        self.props = props
 
     def to_html(self):
         raise NotImplementedError()
@@ -22,8 +22,8 @@ class HTMLNode():
 
 
 class LeafNode(HTMLNode):
-    def __init__(self, tag=None, value=None, props=None):
-        super().__init__(tag, value, props, None)
+    def __init__(self, tag, value, props=None):
+        super().__init__(tag, value, None, props)
 
     def to_html(self):
         if self.value is None:
@@ -36,3 +36,23 @@ class LeafNode(HTMLNode):
 
     def __repr__(self):
         return f"LeafNode({self.tag}, {self.value}, {self.props})"
+
+
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag, None, children, props)
+
+    def to_html(self):
+        if self.tag == None:
+            raise ValueError("No tag entered")
+
+        if self.children == None:
+            raise ValueError("Parent Node needs children (LeafNodes) to wrap around")
+
+        children_html = ""
+        for child in self.children:
+            children_html += child.to_html()
+        return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
+
+    def __repr__(self):
+        return f"ParentNode({self.tag}, {self.children}, {self.props})"
